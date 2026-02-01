@@ -1,570 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WeatherGuard - Rain & Disaster Alerts</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .weather-card {
-      backdrop-filter: blur(12px);
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-    }
-    .weather-card:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    .alert-critical {
-      animation: pulse 2s infinite;
-    }
-    .alert-warning {
-      animation: glow 3s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-    @keyframes glow {
-      0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-      50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
-      100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.4); }
-    }
-    .loading-spinner {
-      border: 3px solid rgba(243, 243, 243, 0.3);
-      border-top: 3px solid #fff;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-      animation: progress 2s ease-in-out infinite;
-    }
-    @keyframes progress {
-      0% { width: 0%; }
-      50% { width: 70%; }
-      100% { width: 100%; }
-    }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>NewsHub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --primary:#4361ee;
+  --accent:#4cc9f0;
+  --bg:#ffffff;
+  --text:#111;
+  --card:#f5f5f5;
+  --success:#4caf50;
+  --danger:#f44336;
+}
+[data-theme="dark"]{
+  --bg:#0f172a;
+  --text:#f8fafc;
+  --card:#1e293b;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif}
+body{background:var(--bg);color:var(--text);transition:.3s}
+header{
+  padding:1rem 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  background:var(--card);
+  z-index:10;
+}
+nav a{
+  margin-left:1rem;
+  text-decoration:none;
+  color:var(--text);
+  font-weight:500;
+}
+nav a.active{color:var(--primary)}
+.hero{text-align:center;padding:4rem 5%}
+.hero h1{
+  font-size:3rem;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.hero p{opacity:.8;margin-top:.5rem}
+.categories{
+  display:flex;
+  justify-content:center;
+  gap:1rem;
+  flex-wrap:wrap;
+  margin-bottom:2rem;
+}
+.category{
+  padding:.4rem 1rem;
+  border-radius:20px;
+  background:var(--card);
+  cursor:pointer;
+}
+.category.active{background:var(--primary);color:#fff}
+.news-grid{
+  padding:0 5% 3rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1.5rem;
+}
+.news-card{
+  background:var(--card);
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+}
+.news-card img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+.news-content{padding:1rem}
+.bookmark-btn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:32px;
+  height:32px;
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  background:#fff;
+}
+.bookmark-btn.bookmarked{
+  background:var(--primary);
+  color:#fff;
+}
+.notification{
+  position:fixed;
+  top:90px;
+  right:20px;
+  padding:1rem;
+  border-radius:6px;
+  color:#fff;
+  transform:translateX(150%);
+  transition:.3s;
+  z-index:99;
+}
+.notification.show{transform:translateX(0)}
+footer{
+  text-align:center;
+  padding:2rem;
+  background:var(--card);
+  opacity:.7;
+}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-4xl w-full mx-auto">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <div class="flex items-center justify-center mb-4">
-        <div class="bg-white/20 p-3 rounded-full">
-          <i class="fas fa-cloud-showers-heavy text-white text-3xl"></i>
+
+<body>
+
+<header>
+  <div><i class="fa fa-newspaper"></i> <b>NewsHub</b></div>
+  <nav>
+    <a href="#" data-page="home" class="nav-link active">Home</a>
+    <a href="#" data-page="bookmarks" class="nav-link">Bookmarks</a>
+  </nav>
+  <button id="themeToggle"><i class="fa fa-moon"></i></button>
+</header>
+
+<section class="hero">
+  <h1>Discover News That Matters</h1>
+  <p>Latest headlines from trusted sources</p>
+</section>
+
+<div class="categories">
+  <div class="category active" data-cat="all">All</div>
+  <div class="category" data-cat="technology">Technology</div>
+  <div class="category" data-cat="business">Business</div>
+  <div class="category" data-cat="sports">Sports</div>
+</div>
+
+<div class="news-grid" id="newsGrid"></div>
+<div class="notification" id="notification"></div>
+
+<footer>© 2025 NewsHub</footer>
+
+<script>
+const API_KEY = "740f66b0345d06095f1db635947729c2";
+const PROXY = "https://api.allorigins.win/raw?cache=false&url=";
+
+let currentPage = "home";
+let currentCategory = "all";
+let currentArticles = [];
+let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
+
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+function notify(msg, error=false){
+  const n = $("notification");
+  n.textContent = msg;
+  n.style.background = error ? "var(--danger)" : "var(--success)";
+  n.classList.add("show");
+  setTimeout(()=>n.classList.remove("show"),2500);
+}
+
+function formatDate(d){
+  return new Date(d).toLocaleString();
+}
+
+async function fetchWithFallback(url){
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(r.status);
+    return await r.json();
+  }catch{
+    const r = await fetch(PROXY + encodeURIComponent(url));
+    return await r.json();
+  }
+}
+
+async function fetchNews(){
+  let url = `https://gnews.io/api/v4/top-headlines?lang=en&country=us&sortby=publishedAt&token=${API_KEY}`;
+  if(currentCategory!=="all") url += `&topic=${currentCategory}`;
+
+  try{
+    const data = await fetchWithFallback(url);
+    if(!data.articles) throw new Error("No articles");
+    currentArticles = data.articles;
+    renderNews(currentArticles);
+  }catch(e){
+    notify("News service unavailable", true);
+  }
+}
+
+function renderNews(list){
+  $("newsGrid").innerHTML = "";
+  list.forEach((a,i)=>{
+    $("newsGrid").innerHTML += `
+      <div class="news-card">
+        <button class="bookmark-btn ${bookmarks.some(b=>b.title===a.title)?"bookmarked":""}"
+          onclick="toggleBookmark(${i})">
+          <i class="fa fa-bookmark"></i>
+        </button>
+        <img src="${a.image || `https://picsum.photos/600/400?${i}`}">
+        <div class="news-content">
+          <h3>${a.title}</h3>
+          <p>${a.description || ""}</p>
+          <small>${a.source.name} • ${formatDate(a.publishedAt)}</small>
         </div>
-      </div>
-      <h1 class="text-4xl font-bold text-white mb-2">WeatherGuard</h1>
-      <p class="text-white/80">Real-time rain & disaster alerts for your location</p>
-    </div>
+      </div>`;
+  });
+}
 
-    <!-- Main Content -->
-    <div class="weather-card rounded-2xl p-6 mb-6">
-      <!-- Location and Status -->
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h2 class="text-xl font-semibold text-white" id="locationName">Current Location</h2>
-          <p class="text-white/70" id="lastUpdated">Last updated: Never</p>
-        </div>
-        <div class="flex gap-3">
-          <button id="refreshBtn" aria-label="Refresh weather data" title="Refresh weather data" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors flex items-center justify-center">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-          <button id="notifyToggle" aria-label="Toggle notifications" title="Toggle notifications" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center">
-            <i class="fas fa-bell mr-2"></i>
-            Enable Alerts
-          </button>
-        </div>
-      </div>
+function toggleBookmark(i){
+  const a = currentArticles[i];
+  const exists = bookmarks.find(b=>b.title===a.title);
+  bookmarks = exists
+    ? bookmarks.filter(b=>b.title!==a.title)
+    : [...bookmarks,a];
+  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
+  notify(exists?"Bookmark removed":"Bookmark added");
+  loadPage(currentPage);
+}
 
-      <!-- Progress Bar -->
-      <div class="progress-bar mb-4" id="progressBar">
-        <div class="progress-fill"></div>
-      </div>
+function loadPage(p){
+  currentPage=p;
+  $$(".nav-link").forEach(l=>l.classList.toggle("active",l.dataset.page===p));
+  p==="bookmarks"?renderNews(bookmarks):fetchNews();
+}
 
-      <!-- Weather Display -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white/10 rounded-xl p-4 text-center fade-in">
-          <i class="fas fa-temperature-high text-white text-2xl mb-2"></i>
-          <p class="text-white/70">Temperature</p>
-          <p class="text-white text-xl font-bold" id="temperature">--°C</p>
-        </div>
-        <div class="bg-white/10 rounded-xl p-4 text-center fade-in">
-          <i class="fas fa-cloud-sun-rain text-white text-2xl mb-2"></i>
-          <p class="text-white/70">Conditions</p>
-          <p class="text-white text-xl font-bold" id="conditions">--</p>
-        </div>
-        <div class="bg-white/10 rounded-xl p-4 text-center fade-in">
-          <i class="fas fa-tint text-white text-2xl mb-2"></i>
-          <p class="text-white/70">Humidity</p>
-          <p class="text-white text-xl font-bold" id="humidity">--%</p>
-        </div>
-      </div>
+$$(".category").forEach(c=>{
+  c.onclick=()=>{
+    $$(".category").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
+    currentCategory=c.dataset.cat;
+    fetchNews();
+  };
+});
 
-      <!-- Rain Probability -->
-      <div class="bg-white/10 rounded-xl p-4 mb-6 fade-in" id="rainContainer">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center">
-            <i class="fas fa-umbrella text-white text-xl mr-2"></i>
-            <p class="text-white font-semibold">Rain Probability (Next 12h)</p>
-          </div>
-          <span class="text-white font-bold" id="rainProbability">0%</span>
-        </div>
-        <div class="w-full bg-white/20 rounded-full h-3">
-          <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" id="rainBar"></div>
-        </div>
-      </div>
+$$(".nav-link").forEach(l=>{
+  l.onclick=e=>{
+    e.preventDefault();
+    loadPage(l.dataset.page);
+  };
+});
 
-      <!-- Alerts Panel -->
-      <div id="alertPanel" class="hidden rounded-xl p-4 mb-4 border-2 fade-in">
-        <div class="flex items-center mb-2">
-          <i class="fas fa-exclamation-triangle text-xl mr-2" id="alertIcon"></i>
-          <h3 class="font-semibold" id="alertTitle">ACTIVE ALERT</h3>
-        </div>
-        <p id="alertMessage" class="font-semibold mb-2"></p>
-        <p id="alertDetails" class="text-sm opacity-80"></p>
-        <div class="mt-3 flex gap-2">
-          <button class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-sm transition-colors" onclick="dismissAlert()">
-            Dismiss
-          </button>
-          <button class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-sm transition-colors" onclick="refreshData()">
-            Check Again
-          </button>
-        </div>
-      </div>
+$("themeToggle").onclick=()=>{
+  document.documentElement.dataset.theme =
+    document.documentElement.dataset.theme==="dark"?"light":"dark";
+};
 
-      <!-- Status Messages -->
-      <div id="statusMessage" class="text-center p-4 rounded-xl mb-4">
-        <div class="flex items-center justify-center gap-3">
-          <div class="loading-spinner"></div>
-          <span class="text-white">Checking your location...</span>
-        </div>
-      </div>
+fetchNews();
+</script>
 
-      <!-- Error Messages -->
-      <div id="errorMessage" class="hidden bg-red-600/20 border border-red-600/30 rounded-xl p-4 mb-4">
-        <div class="flex items-center">
-          <i class="fas fa-exclamation-circle text-red-400 text-xl mr-2"></i>
-          <p class="text-red-100" id="errorText"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Features Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="weather-card rounded-xl p-4 text-center fade-in">
-        <div class="bg-white/20 p-2 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-          <i class="fas fa-cloud-rain text-white"></i>
-        </div>
-        <h3 class="text-white font-semibold mb-1">Rain Detection</h3>
-        <p class="text-white/70 text-sm">Real-time precipitation monitoring worldwide</p>
-      </div>
-      <div class="weather-card rounded-xl p-4 text-center fade-in">
-        <div class="bg-white/20 p-2 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-          <i class="fas fa-exclamation-triangle text-white"></i>
-        </div>
-        <h3 class="text-white font-semibold mb-1">Disaster Alerts (US)</h3>
-        <p class="text-white/70 text-sm">Official US emergency warnings</p>
-      </div>
-      <div class="weather-card rounded-xl p-4 text-center fade-in">
-        <div class="bg-white/20 p-2 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-          <i class="fas fa-bell text-white"></i>
-        </div>
-        <h3 class="text-white font-semibold mb-1">Smart Notifications</h3>
-        <p class="text-white/70 text-sm">Instant browser alerts</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // DOM Elements
-    const checkBtn = document.getElementById('refreshBtn');
-    const notifyToggle = document.getElementById('notifyToggle');
-    const statusMessage = document.getElementById('statusMessage');
-    const errorMessage = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
-    const alertPanel = document.getElementById('alertPanel');
-    const locationName = document.getElementById('locationName');
-    const lastUpdated = document.getElementById('lastUpdated');
-    const temperature = document.getElementById('temperature');
-    const conditions = document.getElementById('conditions');
-    const humidity = document.getElementById('humidity');
-    const alertMessage = document.getElementById('alertMessage');
-    const alertDetails = document.getElementById('alertDetails');
-    const alertTitle = document.getElementById('alertTitle');
-    const alertIcon = document.getElementById('alertIcon');
-    const rainProbability = document.getElementById('rainProbability');
-    const rainBar = document.getElementById('rainBar');
-    const rainContainer = document.getElementById('rainContainer');
-    const progressBar = document.getElementById('progressBar');
-
-    // State
-    let monitoringEnabled = false;
-    let monitoringInterval = null;
-    let lastLocation = null;
-    let currentAlerts = [];
-
-    // Initialize app
-    async function init() {
-      await requestNotificationPermission();
-      updateNotifyButton();
-      setupEventListeners();
-      
-      // Check if we have cached data
-      const cachedData = localStorage.getItem('weatherguard_data');
-      if (cachedData) {
-        try {
-          const data = JSON.parse(cachedData);
-          if (Date.now() - data.timestamp < 30 * 60 * 1000) { // 30 minutes cache
-            updateUI(data);
-            return;
-          }
-        } catch (e) {
-          console.log('No valid cache found');
-        }
-      }
-      
-      checkWeather();
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-      checkBtn.addEventListener('click', checkWeather);
-      
-      notifyToggle.addEventListener('click', () => {
-        if (Notification.permission === 'granted') {
-          monitoringEnabled = !monitoringEnabled;
-          if (monitoringEnabled) {
-            // Start monitoring every 10 minutes
-            monitoringInterval = setInterval(checkWeather, 10 * 60 * 1000);
-            showToast('Monitoring enabled - checking every 10 minutes');
-          } else {
-            clearInterval(monitoringInterval);
-            showToast('Monitoring disabled');
-          }
-          updateNotifyButton();
-        } else {
-          requestNotificationPermission();
-        }
-      });
-    }
-
-    // Show toast notification
-    function showToast(message, type = 'info') {
-      const toast = document.createElement('div');
-      toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white font-semibold z-50 transition-all duration-300 transform translate-x-0 ${
-        type === 'error' ? 'bg-red-600' : 'bg-green-600'
-      }`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-
-    // Request notification permission
-    async function requestNotificationPermission() {
-      if (Notification.permission === 'default') {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          showToast('Notifications enabled!', 'success');
-        }
-      }
-      updateNotifyButton();
-    }
-
-    // Update notification button UI
-    function updateNotifyButton() {
-      if (Notification.permission === 'granted' && monitoringEnabled) {
-        notifyToggle.innerHTML = '<i class="fas fa-bell-slash mr-2"></i>Disable Alerts';
-        notifyToggle.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-        notifyToggle.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
-      } else if (Notification.permission === 'granted') {
-        notifyToggle.innerHTML = '<i class="fas fa-bell mr-2"></i>Enable Alerts';
-        notifyToggle.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
-        notifyToggle.classList.add('bg-purple-600', 'hover:bg-purple-700');
-      } else {
-        notifyToggle.innerHTML = '<i class="fas fa-bell mr-2"></i>Enable Alerts';
-        notifyToggle.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
-        notifyToggle.classList.add('bg-purple-600', 'hover:bg-purple-700');
-      }
-    }
-
-    // Send browser notification
-    function sendNotification(title, message) {
-      if (Notification.permission === 'granted' && monitoringEnabled) {
-        new Notification(title, {
-          body: message,
-          icon: 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png',
-          requireInteraction: true
-        });
-      }
-    }
-
-    // Reverse geocode lat/lon to country code and city
-    async function reverseGeocode(lat, lon) {
-      try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Reverse geocoding failed');
-        const data = await res.json();
-        const address = data.address || {};
-        return {
-          city: address.city || address.town || address.village || address.hamlet || 'Unknown',
-          countryCode: address.country_code ? address.country_code.toUpperCase() : null,
-          country: address.country || 'Unknown'
-        };
-      } catch (e) {
-        console.warn('Reverse geocode error:', e);
-        return { city: 'Unknown', countryCode: null, country: 'Unknown' };
-      }
-    }
-
-    // Fetch weather data from Open-Meteo
-    async function fetchWeatherData(lat, lon) {
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weathercode&timezone=auto`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Weather API error');
-        return await res.json();
-      } catch (e) {
-        console.error('Weather fetch error:', e);
-        throw new Error('Could not fetch weather data');
-      }
-    }
-
-    // Fetch US alerts from National Weather Service
-    async function fetchNWSAlerts(lat, lon) {
-      try {
-        // Only fetch for US locations
-        const url = `https://api.weather.gov/alerts/active?point=${lat},${lon}`;
-        const res = await fetch(url);
-        if (!res.ok) return [];
-        const data = await res.json();
-        return data.features || [];
-      } catch (e) {
-        console.warn('NWS API error:', e);
-        return [];
-      }
-    }
-
-    // Map weather code to description
-    function weatherCodeToDescription(code) {
-      const map = {
-        0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-        45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Moderate drizzle',
-        55: 'Dense drizzle', 61: 'Slight rain', 63: 'Moderate rain', 65: 'Heavy rain',
-        71: 'Slight snow', 73: 'Moderate snow', 75: 'Heavy snow', 77: 'Snow grains',
-        80: 'Slight rain showers', 81: 'Moderate rain showers', 82: 'Violent rain showers',
-        85: 'Slight snow showers', 86: 'Heavy snow showers', 95: 'Thunderstorm',
-        96: 'Thunderstorm with hail', 99: 'Severe thunderstorm'
-      };
-      return map[code] || 'Unknown conditions';
-    }
-
-    // Get max rain probability from next 12 hours
-    function getMaxRainProbability(hourlyData) {
-      if (!hourlyData || !hourlyData.precipitation_probability) return 0;
-      const next12Hours = hourlyData.precipitation_probability.slice(0, 12);
-      return Math.max(...next12Hours);
-    }
-
-    // Update UI with weather data
-    function updateUI(data) {
-      const { location, weather, alerts, maxRainProb } = data;
-      
-      // Update location and time
-      locationName.textContent = `${location.city}${location.countryCode ? ', ' + location.countryCode : ''}`;
-      lastUpdated.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-      
-      // Update weather info
-      temperature.textContent = `${weather.temperature}°C`;
-      conditions.textContent = weather.conditions;
-      humidity.textContent = `${weather.humidity}%`;
-      
-      // Update rain probability
-      rainProbability.textContent = `${maxRainProb}%`;
-      rainBar.style.width = `${maxRainProb}%`;
-      rainContainer.classList.remove('hidden');
-      
-      // Handle alerts
-      currentAlerts = alerts;
-      if (alerts.length > 0) {
-        showAlert(alerts[0]);
-      } else if (maxRainProb >= 30) {
-        showRainAlert(maxRainProb);
-      } else {
-        alertPanel.classList.add('hidden');
-      }
-      
-      // Hide loading states
-      statusMessage.classList.add('hidden');
-      errorMessage.classList.add('hidden');
-      progressBar.classList.add('hidden');
-      
-      // Cache data
-      localStorage.setItem('weatherguard_data', JSON.stringify({
-        ...data,
-        timestamp: Date.now()
-      }));
-    }
-
-    // Show alert panel
-    function showAlert(alert) {
-      alertPanel.classList.remove('hidden');
-      alertPanel.classList.remove('bg-yellow-500/20', 'border-yellow-500/30', 'bg-blue-500/20', 'border-blue-500/30');
-      alertPanel.classList.add('bg-red-600/30', 'border-red-600/50', 'alert-critical');
-      
-      alertIcon.className = 'fas fa-exclamation-triangle text-red-400 text-xl mr-2';
-      alertTitle.textContent = '⚠️ Emergency Alert';
-      alertMessage.textContent = alert.properties?.event || 'Emergency Alert';
-      alertDetails.textContent = alert.properties?.headline || alert.properties?.description || 'Take necessary precautions';
-      
-      sendNotification('Emergency Alert', alert.properties?.event || 'Emergency alert in your area');
-    }
-
-    // Show rain alert
-    function showRainAlert(probability) {
-      alertPanel.classList.remove('hidden');
-      alertPanel.classList.remove('bg-red-600/30', 'border-red-600/50', 'alert-critical');
-      alertPanel.classList.add('bg-blue-500/20', 'border-blue-500/30');
-      
-      alertIcon.className = 'fas fa-umbrella text-blue-400 text-xl mr-2';
-      alertTitle.textContent = '🌧️ Rain Alert';
-      alertMessage.textContent = `Rain expected (${probability}% chance)`;
-      alertDetails.textContent = 'Consider carrying an umbrella or planning indoor activities';
-      
-      if (probability >= 60) {
-        sendNotification('Rain Alert', `Heavy rain expected (${probability}% chance)`);
-      }
-    }
-
-    // Dismiss current alert
-    function dismissAlert() {
-      alertPanel.classList.add('hidden');
-    }
-
-    // Refresh data
-    function refreshData() {
-      checkWeather();
-    }
-
-    // Show error message
-    function showError(message) {
-      errorMessage.classList.remove('hidden');
-      errorText.textContent = message;
-      statusMessage.classList.add('hidden');
-      progressBar.classList.add('hidden');
-    }
-
-    // Update status message
-    function updateStatus(message) {
-      statusMessage.classList.remove('hidden');
-      statusMessage.innerHTML = `
-        <div class="flex items-center justify-center gap-3">
-          <div class="loading-spinner"></div>
-          <span class="text-white">${message}</span>
-        </div>
-      `;
-    }
-
-    // Main function to check weather
-    async function checkWeather() {
-      if (!navigator.geolocation) {
-        showError('Geolocation is not supported by your browser.');
-        return;
-      }
-
-      // Show loading states
-      statusMessage.classList.remove('hidden');
-      errorMessage.classList.add('hidden');
-      progressBar.classList.remove('hidden');
-      updateStatus('Getting your location...');
-
-      try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 10000,
-            enableHighAccuracy: true
-          });
-        });
-
-        const { latitude, longitude } = position.coords;
-        lastLocation = { lat: latitude, lon: longitude };
-
-        updateStatus('Getting location details...');
-        const locationInfo = await reverseGeocode(latitude, longitude);
-
-        updateStatus('Fetching weather data...');
-        const weatherData = await fetchWeatherData(latitude, longitude);
-        
-        const current = weatherData.current_weather;
-        const hourly = weatherData.hourly;
-        const maxRainProb = getMaxRainProbability(hourly);
-        
-        let alerts = [];
-        if (locationInfo.countryCode === 'US') {
-          updateStatus('Checking for alerts...');
-          alerts = await fetchNWSAlerts(latitude, longitude);
-        }
-
-        // Prepare data for UI
-        const uiData = {
-          location: locationInfo,
-          weather: {
-            temperature: current.temperature,
-            conditions: weatherCodeToDescription(current.weathercode),
-            humidity: hourly.relative_humidity_2m ? hourly.relative_humidity_2m[0] : '--'
-          },
-          alerts: alerts,
-          maxRainProb: maxRainProb
-        };
-
-        updateUI(uiData);
-        
-      } catch (error) {
-        console.error('Error:', error);
-        showError(error.message === 'Timeout expired' ? 
-          'Location access timed out. Please check your location settings.' :
-          'Could not fetch weather data. Please try again.'
-        );
-      }
-    }
-
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
 </body>
 </html>
